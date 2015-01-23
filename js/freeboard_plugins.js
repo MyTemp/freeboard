@@ -3828,7 +3828,10 @@ freeboard.loadDatasourcePlugin({
 		'display:table-cell;');
 
 	freeboard.addStyle('.tw-value',
-		valueStyle +
+        'font-family: "HelveticaNeue-UltraLight", "Helvetica Neue Ultra Light", "Helvetica Neue", sans-serif;' +
+        'color: #58595b' +
+        'font-weight: 100;' +
+        'color: a6ce00;' +
 		'overflow: hidden;' +
 		'display: inline-block;' +
 		'text-overflow: ellipsis;');
@@ -3980,7 +3983,7 @@ freeboard.loadDatasourcePlugin({
         type_name: "text_widget",
         display_name: "Text",
         "external_scripts" : [
-            "plugins/thirdparty/jquery.sparkline.min.js"
+            "freeboard/plugins/thirdparty/jquery.sparkline.min.js"
         ],
         settings: [
             {
@@ -4060,7 +4063,7 @@ freeboard.loadDatasourcePlugin({
                 max: (_.isUndefined(currentSettings.max_value) ? 0 : currentSettings.max_value),
                 label: currentSettings.units,
                 showInnerShadow: false,
-                valueFontColor: "#d3d4d4"
+                valueFontColor: "#005CE3"
             });
         }
 
@@ -4102,8 +4105,8 @@ freeboard.loadDatasourcePlugin({
         type_name: "gauge",
         display_name: "Gauge",
         "external_scripts" : [
-            "plugins/thirdparty/raphael.2.1.0.min.js",
-            "plugins/thirdparty/justgage.1.0.1.js"
+            "freeboard/plugins/thirdparty/raphael.2.1.0.min.js",
+            "freeboard/plugins/thirdparty/justgage.1.0.1.js"
         ],
         settings: [
             {
@@ -4193,7 +4196,7 @@ freeboard.loadDatasourcePlugin({
         type_name: "sparkline",
         display_name: "Sparkline",
         "external_scripts" : [
-            "plugins/thirdparty/jquery.sparkline.min.js"
+            "freeboard/plugins/thirdparty/jquery.sparkline.min.js"
         ],
         settings: [
             {
