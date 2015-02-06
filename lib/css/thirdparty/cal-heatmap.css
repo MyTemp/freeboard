@@ -55,34 +55,20 @@ Remove comment to apply this style to date with value equal to 0
 }
 */
 
-.cal-heatmap-container .q1
-{
-	background-color: #dae289;
-	fill: #dae289
+
+.cal-heatmap-container .qFalse {
+    background-color: #ff0000;
+    fill: #ff0000
 }
 
-.cal-heatmap-container .q2
-{
-	background-color: #cedb9c;
-	fill: #9cc069
+.cal-heatmap-container .qNeutral {
+    background-color: #424242;
+    fill: #424242
 }
 
-.cal-heatmap-container .q3
-{
-	background-color: #b5cf6b;
-	fill: #669d45
-}
-
-.cal-heatmap-container .q4
-{
-	background-color: #637939;
-	fill: #637939
-}
-
-.cal-heatmap-container .q5
-{
-	background-color: #3b6427;
-	fill: #3b6427
+.cal-heatmap-container .qTrue {
+    background-color: #3b6427;
+    fill: #3b6427
 }
 
 .cal-heatmap-container rect.highlight
