@@ -2,7 +2,9 @@
 // │ F R E E B O A R D                                                  │ \\
 // ├────────────────────────────────────────────────────────────────────┤ \\
 // │ Copyright © 2013 Jim Heising (https://github.com/jheising)         │ \\
-// │ Copyright © 2013 Bug Labs, Inc. (http://buglabs.net)               │ \\
+// │ Copyright © 2013 Bug Labs, Inc. (http://buglabs.net)               | \\
+// │ Copyright © 2015 Percila Njira  (https://github.com/percila)       │ \\
+// │ Copyright © 2015 Modio AB. (https://modio.se)                      │ \\
 // ├────────────────────────────────────────────────────────────────────┤ \\
 // │ Licensed under the MIT license.                                    │ \\
 // └────────────────────────────────────────────────────────────────────┘ \\
@@ -557,6 +559,231 @@
         ],
         newInstance: function (settings, newInstanceCallback) {
             newInstanceCallback(new pictureWidget(settings));
+        }
+    });
+
+    freeboard.addStyle('.bargraph-widget-wrapper', "width: 100%;text-align: center;");
+    freeboard.addStyle('.bargraph-widget', "width:100%;height:200px;display:inline-block;");
+    freeboard.addStyle('.axis path, .axis line', "fill:none;stroke:#58595b;shape-rendering:crispEdges;");
+    freeboard.addStyle('.axis text', "font-family:sans-serif;font-size:11px;fill:#58595b;");
+    freeboard.addStyle('.x_label, .y_label', "font-family:sans-serif;font-size:15px;font-weight:bold;fill:#58595b;");
+    freeboard.addStyle('.legend text',"fill:#58595b;");
+
+    var bargraphWidget = function(settings){
+
+        var self = this;
+
+        var titleElement = $('<h2 class="section-title"></h2>');
+        var bargraphElement = $('<div class="bargraph-widget"></div>');
+
+        this.render = function (element) {
+            $(element).append(titleElement).append($('<div class="bargraph-widget-wrapper"></div>').append(bargraphElement));
+        }
+
+        var currentSettings = settings;
+
+        // data format [{"name":"legend-1","values":[["x-value1", 1],["x-value2",2]]},{"name":"legend-2","values":[["x-value1",3],["x-value2",4]]}]
+        function createBarGraph(allValues) {
+            bargraphElement.empty();
+
+            var legendLabels = [];
+            var graphValues = [];
+            allValues.forEach(function(value) {
+                legendLabels.push(value.name);
+                graphValues.push(value.values);
+            });
+
+            var barPadding = 5;
+            var margin = {left: 40, right: 20, top: 20, bottom: 30};
+            var longestGraphLength = d3.max(graphValues, function(graphValue){
+                return graphValue.length;
+            });
+            var calculatedGraphLength = longestGraphLength * allValues.length;
+            var barWidth = (bargraphElement[0].clientWidth * 0.65 - longestGraphLength * barPadding - margin.left - margin.right) / calculatedGraphLength;
+
+            var svgWidth = (barWidth + barPadding) * longestGraphLength * graphValues.length;
+            var svgHeight = bargraphElement[0].clientHeight;
+            var xPosMultiple = svgWidth / longestGraphLength;
+            var barSvg = d3.select(bargraphElement[0])
+                .append("svg")
+                .attr("width", (svgWidth + margin.left + margin.right) * 1.5)
+                .attr("height", svgHeight +  margin.top + margin.bottom);
+
+            var longestGraph = [];
+            graphValues.forEach(function(graph){
+                if (graph.length == longestGraphLength) {
+                    longestGraph.push(graph);
+                }
+            });
+
+            var axesLabels = [];
+            longestGraph[0].forEach(function(pair){
+                axesLabels.push(pair[0]);
+            });
+
+            var barYValues = [];
+            graphValues.forEach(function(graphValue){
+                var barYValue = [];
+                graphValue.forEach(function(pair){
+                    barYValue.push(pair[1]);
+                });
+                barYValues.push(barYValue);
+            });
+
+            var barColors = ["#a6ce00", "#009245", "#63B61C", "#31A430", "#88C30D", "#6BBBFD", "#3087EF", "#73C2FF"];
+            var yValuesScale = d3.scale.linear()
+                .domain([0, d3.max(_.flatten(barYValues))])
+                .range([0,svgHeight]);
+
+            barYValues.forEach(function(yValues, index){
+                barSvg.append("g")
+                    .attr("transform","translate(" + (margin.left + (barWidth * index)) + ",5)")
+                    .selectAll("rect")
+                    .data(yValues)
+                    .enter()
+                    .append("rect")
+                    .attr("x", function(d, i){
+                        return i * (xPosMultiple);
+                    })
+                    .attr("y", function(d){
+                        return svgHeight - (yValuesScale(d));
+                    })
+                    .attr("width", barWidth)
+                    .attr("height", function(d){
+                        return yValuesScale(d);
+                    })
+                    .attr("fill", function(d){
+                        return barColors[index % barColors.length];
+                    });
+            });
+
+            var x_domain = [];
+            longestGraph[0].forEach(function(pair){
+                x_domain.push(pair[0]);
+            });
+            var xAxisScale = d3.scale.ordinal()
+                .domain(x_domain)
+                .rangeBands([0, svgWidth]);
+            var xAxis = d3.svg.axis()
+                .scale(xAxisScale)
+                .orient("bottom");
+
+            barSvg.append("g")
+                .attr("transform", "translate(" + (margin.left) + "," + (svgHeight + 5 ) + ")")
+                .attr("class", "axis")
+                .call(xAxis);
+
+            barSvg.append("g")
+                .attr("transform", "translate(" + (svgWidth * 0.5) + ", " + (svgHeight + margin.bottom + 5) + ")")
+                .append("text")
+                .attr("class", "x_label")
+                .attr("text-anchor", "center")
+                .text(currentSettings.x_label);
+
+            var yAxisScale = d3.scale.linear()
+                .domain([0, d3.max(_.flatten(barYValues))])
+                .range([svgHeight, 0]);
+            var yAxis = d3.svg.axis()
+                .scale(yAxisScale)
+                .orient("left")
+                .ticks("6");
+
+            barSvg.append("g")
+                .attr("transform", "translate(" + margin.left + ",5)")
+                .attr("class", "axis")
+                .call(yAxis);
+
+            barSvg.append("g")
+                .attr("transform", "translate(0, " + (svgHeight * 0.6) + ")")
+                .append("text")
+                .attr("class", "y_label")
+                .attr("text-anchor", "center")
+                .attr("dy", ".75em")
+                .attr("transform", "rotate(-90)")
+                .text(currentSettings.y_label);
+
+            var legend = barSvg.append("g")
+                .attr("transform", "translate(" + (1.2 * svgWidth) + " ,0)")
+                .attr("class", "legend");
+
+            legend.selectAll("circle")
+                .data(legendLabels)
+                .enter()
+                .append("circle")
+                .attr("cx", 2)
+                .attr("cy", function(d, i){
+                    return (i + 1) * (0.15 * svgHeight);
+                })
+                .attr("r", (0.0225 * svgWidth))
+                .style("fill", function(d, i){
+                    return barColors[i];
+                });
+
+            legend.selectAll("text")
+                .data(legendLabels)
+                .enter()
+                .append("text")
+                .attr("x", 15 + 0.02 * svgWidth)
+                .attr("y", function(d, i){
+                    return (i + 1) * (0.15 * svgHeight);
+                })
+                .attr("dy", ".35em")
+                .text(function(d){
+                    return d;
+                });
+        }
+
+        this.onSettingsChanged = function (newSettings) {
+            titleElement.html(newSettings.title);
+            currentSettings = newSettings;
+        }
+
+        this.onCalculatedValueChanged = function (settingName, newValue) {
+            createBarGraph(newValue);
+        }
+
+        this.onDispose = function () {
+
+        }
+
+        this.getHeight = function () {
+            return 5;
+        }
+
+        this.onSettingsChanged(settings);
+    };
+
+
+    freeboard.loadWidgetPlugin({
+        type_name: "bargraph",
+        display_name: "Bar Graph",
+        "external_scripts" : [
+            "freeboard/plugins/thirdparty/d3.v3.js"
+        ],
+        settings: [
+            {
+                name: "title",
+                display_name: "Title",
+                type: "text"
+            },
+            {
+                name: "value",
+                display_name: "Value",
+                type: "calculated"
+            },
+            {
+                name: "x_label",
+                display_name: "X-Label",
+                type: "text"
+            },
+            {
+                name: "y_label",
+                display_name: "Y-Label",
+                type: "text"
+            }
+        ],
+        newInstance: function (settings, newInstanceCallback) {
+            newInstanceCallback(new bargraphWidget(settings));
         }
     });
 }());
