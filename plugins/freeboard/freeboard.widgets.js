@@ -758,7 +758,7 @@
         type_name: "bargraph",
         display_name: "Bar Graph",
         "external_scripts" : [
-            "freeboard/plugins/thirdparty/d3.v3.js"
+            "js/d3.min.js"
         ],
         settings: [
             {
