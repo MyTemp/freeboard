@@ -3641,39 +3641,37 @@ $.extend(freeboard, jQuery.eventEmitter);
         }
     });
 
-	freeboard.addStyle('.indicator-light', "border-radius:50%;width:22px;height:22px;border:2px solid #3d3d3d;margin-top:5px;float:left;background-color:#222;margin-right:10px;");
-	freeboard.addStyle('.indicator-light.on', "background-color:#FFC773;box-shadow: 0px 0px 15px #FF9900;border-color:#FDF1DF;");
-	freeboard.addStyle('.indicator-text', "margin-top:10px;");
-    var indicatorWidget = function (settings) {
+	freeboard.addStyle('.indicator-icon', 'color:#ddd;width:36px;height:36px;margin-top:5px;float:left;margin-right:10px;');
+	freeboard.addStyle('.indicator-icon.on', 'color:#800;');
+	freeboard.addStyle('.indicator-icon-text', 'width:40px;font-weight:bold;text-align:center;float:left;margin-right:10px');
+	freeboard.addStyle('.indicator-icon-text.on', 'color:#800');
+	freeboard.addStyle('.indicator-icon-text, .indicator-icon-name', 'margin-top:16px;');
+    var iconIndicatorWidget = function (settings) {
         var self = this;
-        var titleElement = $('<h2 class="section-title"></h2>');
-        var stateElement = $('<div class="indicator-text"></div>');
-        var indicatorElement = $('<div class="indicator-light"></div>');
-        var currentSettings = settings;
         var isOn = false;
-	    var onText = "";
-	    var offText = "";
+	    var onText = '';
+	    var offText = '';
+		var name = '';
+		var iconId = '';
+        var stateElement = $('<div class="indicator-icon-text"></div>');
+        var nameElement = $('<div class="indicator-icon-name"></div>');
+        var indicatorElement = $('<i class="i0 indicator-icon"></i>');
 
         function updateState() {
-            indicatorElement.toggleClass("on", isOn);
-
-            if (isOn) {
-                stateElement.text(onText);
-            }
-            else {
-                stateElement.text(offText);
-            }
+            indicatorElement.toggleClass('on', isOn);
+			stateElement.text(isOn ? onText : offText).toggleClass('on', isOn);
+			nameElement.text(name);
         }
 
         this.render = function (element) {
-            $(element).append(titleElement).append(indicatorElement).append(stateElement);
-        }
+            $(element).append(indicatorElement).append(stateElement).append(nameElement);
+        };
 
-        this.onSettingsChanged = function (newSettings) {
-            currentSettings = newSettings;
-            titleElement.html((_.isUndefined(newSettings.title) ? "" : newSettings.title));
-            updateState();
-        }
+		this.onSettingsChanged = function (newSettings) {
+			indicatorElement.removeClass('i0-' + iconId);
+			iconId = newSettings.icon;
+			indicatorElement.addClass('i0-' + iconId);
+		};
 
         this.onCalculatedValueChanged = function (settingName, newValue) {
 			switch (settingName) {
@@ -3686,30 +3684,33 @@ $.extend(freeboard, jQuery.eventEmitter);
 			case "off_text":
 				offText = newValue;
 				break;
+			case "icon_id":
+				iconId = newValue;
+				break;
+			case "name_text":
+				name = newValue;
+				break;
+			default:
+				return;
 			}
 
             updateState();
-        }
+        };
 
         this.onDispose = function () {
-        }
+        };
 
         this.getHeight = function () {
             return 1;
-        }
+        };
 
-        this.onSettingsChanged(settings);
+		this.onSettingsChanged(settings);
     };
 
     freeboard.loadWidgetPlugin({
-        type_name: "indicator",
-        display_name: "Indicator Light",
+        type_name: "icon_indicator",
+        display_name: "Icon Indicator",
         settings: [
-            {
-                name: "title",
-                display_name: "Title",
-                type: "text"
-            },
             {
                 name: "value",
                 display_name: "Value",
@@ -3724,10 +3725,20 @@ $.extend(freeboard, jQuery.eventEmitter);
                 name: "off_text",
                 display_name: "Off Text",
                 type: "calculated"
-            }
+            },
+			{
+				name: "name_text",
+				display_name: "Name Text",
+				type: "calculated"
+			},
+			{
+				name: "icon",
+				display_name: "Icon ID",
+				type: "text"
+			}
         ],
         newInstance: function (settings, newInstanceCallback) {
-            newInstanceCallback(new indicatorWidget(settings));
+            newInstanceCallback(new iconIndicatorWidget(settings));
         }
     });
 }());
