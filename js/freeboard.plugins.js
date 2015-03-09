@@ -797,10 +797,12 @@
         }
     });
 
+	freeboard.addStyle('@keyframes indicator-icon-blink', 'from{color:#f88;}25%{color:#f00;}to{color:#800;}');
+	freeboard.addStyle('@-webkit-keyframes indicator-icon-blink', 'from{color:#f88;}25%{color:#f00;}to{color:#800;}');
 	freeboard.addStyle('.indicator-icon', 'color:#ddd;width:36px;height:36px;margin-top:5px;float:left;margin-right:10px;');
-	freeboard.addStyle('.indicator-icon.on', 'color:#800;');
 	freeboard.addStyle('.indicator-icon-text', 'width:40px;font-weight:bold;text-align:center;float:left;margin-right:10px');
-	freeboard.addStyle('.indicator-icon-text.on', 'color:#800');
+	freeboard.addStyle('.indicator-icon.on, .indicator-icon-text.on', 'animation-duration:1s;animation-name:indicator-icon-blink;animation-iteration-count:infinite;');
+	freeboard.addStyle('.indicator-icon.on, .indicator-icon-text.on', '-webkit-animation-duration:1s;-webkit-animation-name:indicator-icon-blink;-webkit-animation-iteration-count:infinite;');
 	freeboard.addStyle('.indicator-icon-text, .indicator-icon-name', 'margin-top:16px;');
     var iconIndicatorWidget = function (settings) {
         var self = this;
