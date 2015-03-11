@@ -806,7 +806,7 @@
 	freeboard.addStyle('.indicator-icon-text, .indicator-icon-name', 'margin-top:16px;');
     var iconIndicatorWidget = function (settings) {
         var self = this;
-        var isOn = false;
+        var isOn = null;
 	    var onText = '';
 	    var offText = '';
 		var name = '';
@@ -816,8 +816,16 @@
         var indicatorElement = $('<i class="i0 indicator-icon"></i>');
 
         function updateState() {
-            indicatorElement.toggleClass('on', isOn);
-			stateElement.text(isOn ? onText : offText).toggleClass('on', isOn);
+		    var text;
+            indicatorElement.toggleClass('on', isOn === true);
+		    if (isOn === null) {
+				text = "—";
+			} else if (isOn) {
+				text = onText;
+			} else {
+				text = offText;
+			}
+			stateElement.text(text).toggleClass('on', isOn === true);
 			nameElement.text(name);
         }
 
@@ -834,7 +842,7 @@
         this.onCalculatedValueChanged = function (settingName, newValue) {
 			switch (settingName) {
 			case "value":
-				isOn = Boolean(newValue);
+				isOn = newValue;
 				break;
 			case "on_text":
 				onText = newValue;
