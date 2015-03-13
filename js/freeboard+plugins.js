@@ -2179,7 +2179,7 @@ function WidgetModel(theFreeboardModel, widgetPlugins) {
 	this.render = function (element) {
 		self.shouldRender(false);
 		if (!_.isUndefined(self.widgetInstance) && _.isFunction(self.widgetInstance.render)) {
-			self.widgetInstance.render(element);
+			self.model = self.widgetInstance.render(element);
 			self.updateCalculatedSettings();
 		}
 	}
