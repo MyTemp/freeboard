@@ -560,114 +560,171 @@
         }
     });
 
-	freeboard.addStyle('@keyframes indicator-icon-blink', 'from{color:#f88;}25%{color:#f00;}to{color:#800;}');
-	freeboard.addStyle('@-webkit-keyframes indicator-icon-blink', 'from{color:#f88;}25%{color:#f00;}to{color:#800;}');
-	freeboard.addStyle('.indicator-icon', 'color:#ddd;width:36px;height:36px;margin-top:5px;float:left;margin-right:10px;');
-	freeboard.addStyle('.indicator-icon-text', 'width:40px;font-weight:bold;text-align:center;float:left;margin-right:10px');
-	freeboard.addStyle('.indicator-icon.on, .indicator-icon-text.on', 'animation-duration:1s;animation-name:indicator-icon-blink;animation-iteration-count:infinite;');
-	freeboard.addStyle('.indicator-icon.on, .indicator-icon-text.on', '-webkit-animation-duration:1s;-webkit-animation-name:indicator-icon-blink;-webkit-animation-iteration-count:infinite;');
-	freeboard.addStyle('.indicator-icon-text, .indicator-icon-name', 'margin-top:16px;');
-    var iconIndicatorWidget = function (settings) {
-        var self = this;
-        var isOn = null;
-	    var onText = '';
-	    var offText = '';
-		var name = '';
-		var iconId = '';
-        var stateElement = $('<div class="indicator-icon-text"></div>');
-        var nameElement = $('<div class="indicator-icon-name"></div>');
-        var indicatorElement = $('<i class="i0 indicator-icon"></i>');
+	freeboard.addStyle('@keyframes alarm-indicator-blink', 'from{color:#f88;}25%{color:#f00;}to{color:#800;}');
+	freeboard.addStyle('@-webkit-keyframes alarm-indicator-blink', 'from{color:#f88;}25%{color:#f00;}to{color:#800;}');
+	freeboard.addStyle('.alarm-indicator', 'color:#ddd;width:36px;height:36px;display:inline-block;vertical-align:-5px;margin-right:10px;margin-top:5px');
+	freeboard.addStyle('.alarm-indicator-text', 'width:40px;font-weight:bold;text-align:center;margin-right:10px');
+	freeboard.addStyle('.on>.alarm-indicator, .on>.alarm-indicator-text', 'animation-duration:1s;animation-name:alarm-indicator-blink;animation-iteration-count:infinite;');
+	freeboard.addStyle('.on>alarm-indicator, .on>.alarm-indicator-text', '-webkit-animation-duration:1s;-webkit-animation-name:alarm-indicator-blink;-webkit-animation-iteration-count:infinite;');
+	freeboard.addStyle('.alarm-indicator-text, .alarm-indicator-name', 'display:inline-block;');
 
-        function updateState() {
-		    var text;
-            indicatorElement.toggleClass('on', isOn === true);
-		    if (isOn === null) {
-				text = "—";
-			} else if (isOn) {
-				text = onText;
-			} else {
-				text = offText;
-			}
-			stateElement.text(text).toggleClass('on', isOn === true);
-			nameElement.text(name);
-        }
+	var activeAlarms = ko.observableArray([]);
+	activeAlarms.extend({throttle: 50});
+	var uninitialisedAlarms = ko.observableArray([]);
+	uninitialisedAlarms.extend({throttle: 50});
 
-        this.render = function (element) {
-            $(element).append(indicatorElement).append(stateElement).append(nameElement);
-        };
-
-		this.onSettingsChanged = function (newSettings) {
-			indicatorElement.removeClass('i0-' + iconId);
-			iconId = newSettings.icon;
-			indicatorElement.addClass('i0-' + iconId);
+	var alarmIndicatorWidget = function (settings) {
+		var self = this;
+		var viewModel = {
+			value: ko.observable(null),
+			changeTime: ko.observable(null),
+			onText: ko.observable(''),
+			offText: ko.observable(''),
+			name: ko.observable(''),
+			iconId: ko.observable('')
 		};
 
-        this.onCalculatedValueChanged = function (settingName, newValue) {
-			switch (settingName) {
-			case "value":
-				isOn = newValue;
-				break;
-			case "on_text":
-				onText = newValue;
-				break;
-			case "off_text":
-				offText = newValue;
-				break;
-			case "icon_id":
-				iconId = newValue;
-				break;
-			case "name_text":
-				name = newValue;
-				break;
-			default:
-				return;
+		viewModel.text = ko.computed(function () {
+			if (viewModel.value() === null) {
+				return "—";
+			} else if (viewModel.value()) {
+				return viewModel.onText();
+			} else {
+				return viewModel.offText();
 			}
+		});
 
-            updateState();
-        };
+		uninitialisedAlarms.push(viewModel);
 
-        this.onDispose = function () {
-        };
+		viewModel.value.subscribe(function (on) {
+			if (on !== null) {
+				uninitialisedAlarms.remove(viewModel);
+			}
+			if (on) {
+				activeAlarms.push(viewModel);
+			} else {
+				activeAlarms.remove(viewModel);
+			}
+		});
 
-        this.getHeight = function () {
-            return 1;
-        };
+		this.render = function (element) {
+			var view = $('<div data-bind="css: { on: model.value() }">'+
+						 '<i class="i0 alarm-indicator" data-bind="css: \'i0-\' + model.iconId()"></i>'+
+						 '<div class="alarm-indicator-text" data-bind="text: model.text"></div>'+
+						 '<div class="alarm-indicator-name" data-bind="text: model.name"></div>'+
+						 '</div>');
+			$(element).append(view);
+			return viewModel;
+		};
+
+		this.onSettingsChanged = function (newSettings) {
+			viewModel.iconId(newSettings.iconId);
+		};
+
+		this.onCalculatedValueChanged = function (settingName, newValue) {
+			viewModel[settingName](newValue);
+		};
+
+		this.getHeight = function () {
+			return 1;
+		};
 
 		this.onSettingsChanged(settings);
-    };
+	};
 
-    freeboard.loadWidgetPlugin({
-        type_name: "icon_indicator",
-        display_name: "Icon Indicator",
-        settings: [
-            {
-                name: "value",
-                display_name: "Value",
-                type: "calculated"
-            },
-            {
-                name: "on_text",
-                display_name: "On Text",
-                type: "calculated"
-            },
-            {
-                name: "off_text",
-                display_name: "Off Text",
-                type: "calculated"
-            },
+	freeboard.loadWidgetPlugin({
+		type_name: "alarm_indicator",
+		display_name: "Alarm Indicator",
+		settings: [
 			{
-				name: "name_text",
+				name: "value",
+				display_name: "Value",
+				type: "calculated"
+			},
+			{
+				name: "changeTime",
+				display_name: "Time of Last Change",
+				type: "calculated"
+			},
+			{
+				name: "onText",
+				display_name: "On Text",
+				type: "calculated"
+			},
+			{
+				name: "offText",
+				display_name: "Off Text",
+				type: "calculated"
+			},
+			{
+				name: "name",
 				display_name: "Name Text",
 				type: "calculated"
 			},
 			{
-				name: "icon",
+				name: "iconId",
 				display_name: "Icon ID",
 				type: "text"
 			}
-        ],
-        newInstance: function (settings, newInstanceCallback) {
-            newInstanceCallback(new iconIndicatorWidget(settings));
+		],
+		newInstance: function (settings, newInstanceCallback) {
+			newInstanceCallback(new alarmIndicatorWidget(settings));
+		}
+	});
+
+	freeboard.addStyle(".alarm-overview", "white-space:normal;line-height:50px;text-overflow:ellipsis;");
+	freeboard.addStyle(".alarm-overview-summary", "font-weight:bold;margin-right:15px");
+	freeboard.addStyle(".alarm-overview-item", "display:none;margin-right:15px");
+	freeboard.addStyle(".alarm-overview-item.on", "display:inline-block;");
+
+	var alarmOverviewWidget = function (settings) {
+		var self = this;
+		var container = $('<div class="alarm-overview" data-bind="with: model">'+
+						  '<span class="alarm-overview-wait" data-bind="if: uninitialisedAlarms().length">Hämtar data …</span>'+
+						  '<span data-bind="if: !uninitialisedAlarms().length">'+
+						  '<span class="alarm-overview-summary" data-bind="visible: sortedAlarms().length, text: sortedAlarms().length + \' larm\'"></span>'+
+						  '<span class="alarm-overview-empty" data-bind="if: !sortedAlarms().length">Inga larm</span>'+
+						  '<span data-bind="foreach: sortedAlarms">'+
+						  '<div class="alarm-overview-item" data-bind="css: { on: value }">'+
+						  '<i class="i0 alarm-indicator" data-bind="css: \'i0-\' + iconId()"></i><span data-bind="text: name"></span>'+
+						  '</div>'+
+						  '</span>'+
+						  '</div>');
+		var viewModel = {
+			uninitialisedAlarms: uninitialisedAlarms,
+			sortedAlarms: ko.observableArray([])
+		};
+		viewModel.sortedAlarms.extend({ throttle: 50 });
+
+		activeAlarms.subscribe(function (alarms) {
+			alarms.sort(function (a, b) {
+				if (a.changeTime() < b.changeTime()) {
+					return 1;
+				} else if (a.changeTime() === b.changeTime()) {
+					return 0;
+				} else {
+					return -1;
+				}
+			});
+			viewModel.sortedAlarms(alarms);
+		});
+
+		this.render = function (element) {
+			$(element).append(container);
+			return viewModel;
+		};
+
+		this.getHeight = function () {
+			return 2;
+		};
+	};
+
+	freeboard.loadWidgetPlugin({
+		type_name: "alarm_overview",
+		display_name: "Alarm Overview",
+		settings: [],
+		newInstance: function (settings, newInstanceCallback) {
+			newInstanceCallback(new alarmOverviewWidget(settings));
         }
     });
 }());
