@@ -562,9 +562,9 @@
 
 	freeboard.addStyle('@keyframes alarm-indicator-blink', 'from{color:#f88;}25%{color:#f00;}to{color:#800;}');
 	freeboard.addStyle('@-webkit-keyframes alarm-indicator-blink', 'from{color:#f88;}25%{color:#f00;}to{color:#800;}');
-	freeboard.addStyle('.alarm-indicator', 'color:#ddd;width:36px;height:36px;display:inline-block;vertical-align:-5px;margin-right:10px;margin-top:5px');
+	freeboard.addStyle('.alarm-indicator::after', 'color:#ddd;width:36px;height:36px;display:inline-block;vertical-align:-5px;margin-right:10px;margin-top:5px');
 	freeboard.addStyle('.alarm-indicator-text', 'width:40px;font-weight:bold;text-align:center;margin-right:10px');
-	freeboard.addStyle('.on>.alarm-indicator, .on>.alarm-indicator-text', 'animation-duration:1s;animation-name:alarm-indicator-blink;animation-iteration-count:infinite;');
+	freeboard.addStyle('.on>.alarm-indicator::after, .on>.alarm-indicator-text', 'animation-duration:1s;animation-name:alarm-indicator-blink;animation-iteration-count:infinite;');
 	freeboard.addStyle('.on>alarm-indicator, .on>.alarm-indicator-text', '-webkit-animation-duration:1s;-webkit-animation-name:alarm-indicator-blink;-webkit-animation-iteration-count:infinite;');
 	freeboard.addStyle('.alarm-indicator-text, .alarm-indicator-name', 'display:inline-block;');
 	freeboard.addStyle('.alarm-indicator-tooltip', 'position:absolute;display:inline-block;padding:10px;border-radius:10px;color:#000;background-color:#fff;box-shadow:0 2px 2px 0 rgba(0,0,0,0.5)');
