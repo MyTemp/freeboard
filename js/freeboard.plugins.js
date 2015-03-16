@@ -804,6 +804,19 @@
 	freeboard.addStyle('.on>.alarm-indicator, .on>.alarm-indicator-text', 'animation-duration:1s;animation-name:alarm-indicator-blink;animation-iteration-count:infinite;');
 	freeboard.addStyle('.on>alarm-indicator, .on>.alarm-indicator-text', '-webkit-animation-duration:1s;-webkit-animation-name:alarm-indicator-blink;-webkit-animation-iteration-count:infinite;');
 	freeboard.addStyle('.alarm-indicator-text, .alarm-indicator-name', 'display:inline-block;');
+	freeboard.addStyle('.alarm-indicator-tooltip', 'position:absolute;display:inline-block;padding:10px;border-radius:10px;color:#000;background-color:#fff;box-shadow:0 2px 2px 0 rgba(0,0,0,0.5)');
+
+	$(document).tooltip({
+		items: '[data-alarm-indicator-tooltip]',
+		content: function () {
+			return $(this).attr('data-alarm-indicator-tooltip');
+		},
+		tooltipClass: 'alarm-indicator-tooltip',
+		position: {
+			my: "center top",
+			at: "center bottom+5px"
+		}
+	});
 
 	var activeAlarms = ko.observableArray([]);
 	activeAlarms.extend({throttle: 50});
@@ -818,7 +831,8 @@
 			onText: ko.observable(''),
 			offText: ko.observable(''),
 			name: ko.observable(''),
-			iconId: ko.observable('')
+			iconId: ko.observable(''),
+			tooltipHtml: ko.observable('')
 		};
 
 		viewModel.text = ko.computed(function () {
@@ -845,7 +859,7 @@
 		});
 
 		this.render = function (element) {
-			var view = $('<div data-bind="css: { on: model.value() }">'+
+			var view = $('<div data-bind="css: {on: model.value()}, attr: {\'data-alarm-indicator-tooltip\': model.tooltipHtml()}">'+
 						 '<i class="i0 alarm-indicator" data-bind="css: \'i0-\' + model.iconId()"></i>'+
 						 '<div class="alarm-indicator-text" data-bind="text: model.text"></div>'+
 						 '<div class="alarm-indicator-name" data-bind="text: model.name"></div>'+
@@ -856,6 +870,7 @@
 
 		this.onSettingsChanged = function (newSettings) {
 			viewModel.iconId(newSettings.iconId);
+			viewModel.tooltipHtml(newSettings.tooltipHtml);
 		};
 
 		this.onCalculatedValueChanged = function (settingName, newValue) {
@@ -902,6 +917,11 @@
 				name: "iconId",
 				display_name: "Icon ID",
 				type: "text"
+			},
+			{
+				name: "tooltipHtml",
+				display_name: "Tooltip HTML",
+				type: "text"
 			}
 		],
 		newInstance: function (settings, newInstanceCallback) {
@@ -922,7 +942,7 @@
 						  '<span class="alarm-overview-summary" data-bind="visible: sortedAlarms().length, text: sortedAlarms().length + \' larm\'"></span>'+
 						  '<span class="alarm-overview-empty" data-bind="if: !sortedAlarms().length">Inga larm</span>'+
 						  '<span data-bind="foreach: sortedAlarms">'+
-						  '<div class="alarm-overview-item" data-bind="css: { on: value }">'+
+						  '<div class="alarm-overview-item" data-bind="css: {on: value}, attr: {\'data-alarm-indicator-tooltip\': tooltipHtml()}">'+
 						  '<i class="i0 alarm-indicator" data-bind="css: \'i0-\' + iconId()"></i><span data-bind="text: name"></span>'+
 						  '</div>'+
 						  '</span>'+
