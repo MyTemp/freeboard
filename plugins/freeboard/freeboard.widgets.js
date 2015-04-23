@@ -582,23 +582,29 @@
 
         var currentSettings = settings;
 
-        // data format [{"name":"legend-1","values":[["x-value1", 1],["x-value2",2]]},{"name":"legend-2","values":[["x-value1",3],["x-value2",4]]}]
+        // data format {"2015":{"1":{"delta":11180.2},"2":{"delta":9960.5},"3":{"delta":9052.2}}}
         function createBarGraph(allValues) {
             bargraphElement.empty();
 
             var legendLabels = [];
             var graphValues = [];
-            allValues.forEach(function(value) {
-                legendLabels.push(value.name);
-                graphValues.push(value.values);
-            });
+            var legendVarsCounter = 0;
+
+            for (var key in allValues) {
+                if (allValues.hasOwnProperty(key)) {
+                    legendLabels.push(currentSettings.legend[legendVarsCounter].value);
+                    graphValues.push(allValues[key]);
+                    legendVarsCounter++;
+                }
+            }
+
+            var firstKey = Object.keys(allValues)[0];
 
             var barPadding = 5;
             var margin = {left: 40, right: 20, top: 20, bottom: 30};
-            var longestGraphLength = d3.max(graphValues, function(graphValue){
-                return graphValue.length;
-            });
-            var calculatedGraphLength = longestGraphLength * allValues.length;
+            var longestGraphLength = _.keys(allValues[firstKey]).length;
+
+            var calculatedGraphLength = longestGraphLength * _.keys(allValues).length;
             var barWidth = (bargraphElement[0].clientWidth * 0.65 - longestGraphLength * barPadding - margin.left - margin.right) / calculatedGraphLength;
 
             var svgWidth = (barWidth + barPadding) * longestGraphLength * graphValues.length;
@@ -609,37 +615,60 @@
                 .attr("width", (svgWidth + margin.left + margin.right) * 1.5)
                 .attr("height", svgHeight +  margin.top + margin.bottom);
 
+            // identifying the tallest graph
             var longestGraph = [];
-            graphValues.forEach(function(graph){
-                if (graph.length == longestGraphLength) {
-                    longestGraph.push(graph);
+            for (var key in graphValues[0]) {
+                if (graphValues[0].hasOwnProperty(key)) {
+                    longestGraph.push(graphValues[0][key]);
                 }
-            });
+            }
 
             var axesLabels = [];
-            longestGraph[0].forEach(function(pair){
-                axesLabels.push(pair[0]);
-            });
+            for (var key in longestGraph) {
+                if (longestGraph.hasOwnProperty(key)) {
+                    axesLabels.push(key);
+                }
+            }
 
             var barYValues = [];
-            graphValues.forEach(function(graphValue){
+            var preBarYValues = [];
+            var barDatum = new Array();
+            // The Y-axis values
+            for (var key in graphValues[0]) {
                 var barYValue = [];
-                graphValue.forEach(function(pair){
-                    barYValue.push(pair[1]);
-                });
-                barYValues.push(barYValue);
-            });
+                if (graphValues[0].hasOwnProperty(key)) {
+                    for (var key_1 in graphValues[0][key]) {
+                        if (graphValues[0][key].hasOwnProperty(key_1)) {
+                            barYValue.push(graphValues[0][key][key_1]);
+
+                            var properValue;
+                            if (graphValues[0][key][key_1] === null) {
+                                properValue = 0;
+                            } else {
+                                properValue = graphValues[0][key][key_1];
+                            }
+
+                            barDatum.push(properValue);
+                        }
+                    }
+                    preBarYValues.push(barYValue);
+                }
+            }
+            barYValues.push(preBarYValues);
+
+            var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
             var barColors = ["#a6ce00", "#009245", "#63B61C", "#31A430", "#88C30D", "#6BBBFD", "#3087EF", "#73C2FF"];
             var yValuesScale = d3.scale.linear()
                 .domain([0, d3.max(_.flatten(barYValues))])
-                .range([0,svgHeight]);
+                .range([0, svgHeight]);
 
-            barYValues.forEach(function(yValues, index){
+            barYValues.forEach(function (yValues, index) {
+
                 barSvg.append("g")
                     .attr("transform","translate(" + (margin.left + (barWidth * index)) + ",5)")
                     .selectAll("rect")
-                    .data(yValues)
+                    .data(barDatum)
                     .enter()
                     .append("rect")
                     .attr("x", function(d, i){
@@ -658,9 +687,12 @@
             });
 
             var x_domain = [];
-            longestGraph[0].forEach(function(pair){
-                x_domain.push(pair[0]);
-            });
+            for (var key in longestGraph) {
+                if (longestGraph.hasOwnProperty(key)) {
+                    x_domain.push(months[key]);
+                }
+            }
+
             var xAxisScale = d3.scale.ordinal()
                 .domain(x_domain)
                 .rangeBands([0, svgWidth]);
