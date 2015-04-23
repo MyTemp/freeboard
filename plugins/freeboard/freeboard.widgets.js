@@ -613,7 +613,7 @@
             var barSvg = d3.select(bargraphElement[0])
                 .append("svg")
                 .attr("width", (svgWidth + margin.left + margin.right) * 1.5)
-                .attr("height", svgHeight +  margin.top + margin.bottom);
+                .attr("height", svgHeight + margin.top + margin.bottom);
 
             // identifying the tallest graph
             var longestGraph = [];
@@ -666,22 +666,22 @@
             barYValues.forEach(function (yValues, index) {
 
                 barSvg.append("g")
-                    .attr("transform","translate(" + (margin.left + (barWidth * index)) + ",5)")
+                    .attr("transform", "translate(" + (margin.left + (barWidth * index)) + ",5)")
                     .selectAll("rect")
                     .data(barDatum)
                     .enter()
                     .append("rect")
-                    .attr("x", function(d, i){
+                    .attr("x", function (d, i) {
                         return i * (xPosMultiple);
                     })
-                    .attr("y", function(d){
+                    .attr("y", function (d) {
                         return svgHeight - (yValuesScale(d));
                     })
                     .attr("width", barWidth)
-                    .attr("height", function(d){
+                    .attr("height", function (d) {
                         return yValuesScale(d);
                     })
-                    .attr("fill", function(d){
+                    .attr("fill", function (d) {
                         return barColors[index % barColors.length];
                     });
             });
@@ -743,11 +743,11 @@
                 .enter()
                 .append("circle")
                 .attr("cx", 2)
-                .attr("cy", function(d, i){
+                .attr("cy", function (d, i) {
                     return (i + 1) * (0.15 * svgHeight);
                 })
                 .attr("r", (0.0225 * svgWidth))
-                .style("fill", function(d, i){
+                .style("fill", function (d, i) {
                     return barColors[i];
                 });
 
@@ -756,11 +756,11 @@
                 .enter()
                 .append("text")
                 .attr("x", 15 + 0.02 * svgWidth)
-                .attr("y", function(d, i){
+                .attr("y", function (d, i) {
                     return (i + 1) * (0.15 * svgHeight);
                 })
                 .attr("dy", ".35em")
-                .text(function(d){
+                .text(function (d) {
                     return d;
                 });
         }
