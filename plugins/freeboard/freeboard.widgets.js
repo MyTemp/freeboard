@@ -812,7 +812,24 @@
                 name: "y_label",
                 display_name: "Y-Label",
                 type: "text"
-            }
+            },
+			{
+				"name"        : "legend",
+				"display_name": "Legend(s)",
+				"type"        : "array",
+				"settings"    : [
+					{
+						"name"        : "name",
+						"display_name": "Name",
+						"type"        : "text"
+					},
+					{
+						"name"        : "value",
+						"display_name": "Value",
+						"type"        : "text"
+					}
+				]
+			}
         ],
         newInstance: function (settings, newInstanceCallback) {
             newInstanceCallback(new bargraphWidget(settings));
