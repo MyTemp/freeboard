@@ -601,7 +601,7 @@
             var firstKey = Object.keys(allValues)[0];
 
             var barPadding = 5;
-            var margin = {left: 40, right: 20, top: 20, bottom: 30};
+            var margin = {left: 55, right: 20, top: 20, bottom: 30};
             var longestGraphLength = _.keys(allValues[firstKey]).length;
 
             var calculatedGraphLength = longestGraphLength * _.keys(allValues).length;
