@@ -813,23 +813,24 @@
                 display_name: "Y-Label",
                 type: "text"
             },
-			{
-				"name"        : "legend",
-				"display_name": "Legend(s)",
-				"type"        : "array",
-				"settings"    : [
-					{
-						"name"        : "name",
-						"display_name": "Name",
-						"type"        : "text"
-					},
-					{
-						"name"        : "value",
-						"display_name": "Value",
-						"type"        : "text"
-					}
-				]
-			}
+            {
+                "name": "legend",
+                "display_name": "Legend(s)",
+                "type": "array",
+                "settings": [
+                    {
+                        "name": "name",
+                        "display_name": "Name",
+                        "type": "text"
+                    },
+                    {
+                        "name": "value",
+                        "display_name": "Value",
+                        "type": "text"
+                    }
+                ],
+                "description": "ADD custom legend name for each coloured bar."
+            }
         ],
         newInstance: function (settings, newInstanceCallback) {
             newInstanceCallback(new bargraphWidget(settings));
