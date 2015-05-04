@@ -786,4 +786,121 @@
             newInstanceCallback(new bargraphWidget(settings));
         }
     });
+
+
+    var pointerID = 0;
+    freeboard.addStyle('.pointer-widget-wrapper', "width: 100%;text-align: center;");
+    freeboard.addStyle('.pointer-widget', "width:200px;height:160px;display:inline-block;");
+
+    var pointerWidget = function (settings) {
+        var self = this;
+
+        var thisPointerID = "#pointer-" + pointerID++;
+        var titleElement = $('<h2 class="section-title"></h2>');
+        var pointerElement = $('<div class="pointer-widget" id="' + thisPointerID + '"></div>');
+
+        var pointerObject;
+        var rendered = false;
+
+        var currentSettings = settings;
+
+        function createGauge(currentSettings) {
+            if (!rendered) {
+                return;
+            }
+
+            pointerElement.empty();
+
+            var config =
+            {
+                size: 200,
+                clipWidth: 200,
+                clipHeight: 200,
+                ringWidth: 40,
+                transitionMs: 4000,
+                minValue: (_.isUndefined(currentSettings.min_value) ? 0 : currentSettings.min_value),
+                maxValue: (_.isUndefined(currentSettings.max_value) ? 10 : currentSettings.max_value)
+            };
+
+            pointerObject = new PointerGauge(thisPointerID, config);
+            pointerObject.render();
+        }
+
+        this.render = function (element) {
+            rendered = true;
+            $(element).append(titleElement).append($('<div class="pointer-widget-wrapper"></div>').append(pointerElement));
+            createGauge(settings);
+        }
+
+        this.onSettingsChanged = function (newSettings) {
+            if (newSettings.title != currentSettings.title ||
+                newSettings.round_off != currentSettings.round_off) {
+                currentSettings = newSettings;
+                createGauge(newSettings);
+            }
+            else {
+                currentSettings = newSettings;
+            }
+
+            titleElement.html(newSettings.title);
+        }
+
+        this.onCalculatedValueChanged = function (settingName, newValue) {
+            if (!_.isUndefined(pointerObject)) {
+                pointerObject.update(Number(newValue()));
+            }
+        }
+
+        this.onDispose = function () {
+        }
+
+        this.getHeight = function () {
+            return 3;
+        }
+
+        this.onSettingsChanged(settings);
+    };
+
+    freeboard.loadWidgetPlugin({
+        type_name: "pointer",
+        display_name: "Pointer Gauge",
+        "external_scripts": [
+            "js/d3.min.js",
+            "freeboard/plugins/thirdparty/pointergauge.js"
+        ],
+        settings: [
+            {
+                name: "title",
+                display_name: "Title",
+                type: "text"
+            },
+            {
+                name: "value",
+                display_name: "Value",
+                type: "calculated"
+            },
+            {
+                name: "min_value",
+                display_name: "Minimum",
+                type: "text",
+                default_value: 0
+            },
+            {
+                name: "max_value",
+                display_name: "Maximum",
+                type: "text",
+                default_value: 10
+            },
+            {
+                name: "round_off",
+                display_name: "Round off",
+                description: 'Round of the value.',
+                type: "boolean",
+                default_value: true
+            }
+        ],
+        newInstance: function (settings, newInstanceCallback) {
+            newInstanceCallback(new pointerWidget(settings));
+        }
+    });
 }());
