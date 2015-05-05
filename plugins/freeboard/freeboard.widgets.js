@@ -825,7 +825,7 @@
             {
                 size: 200,
                 clipWidth: 200,
-                clipHeight: 200,
+                clipHeight: 120,
                 ringWidth: 40,
                 transitionMs: 4000,
                 minValue: (_.isUndefined(currentSettings.min_value) ? 0 : currentSettings.min_value),

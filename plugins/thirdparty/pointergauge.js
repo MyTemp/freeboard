@@ -17,7 +17,7 @@ PointerGauge = function (placeholderName, configuration) {
     var config = {
         size: 200,
         clipWidth: 200,
-        clipHeight: 110,
+        clipHeight: 120,
         ringInset: 20,
         ringWidth: 20,
 
