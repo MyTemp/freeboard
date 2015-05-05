@@ -795,7 +795,7 @@
     var pointerWidget = function (settings) {
         var self = this;
 
-        var thisPointerID = "#pointer-" + pointerID++;
+        var thisPointerID = "pointer-" + pointerID++;
         var titleElement = $('<h2 class="section-title"></h2>');
         var pointerElement = $('<div class="pointer-widget" id="' + thisPointerID + '"></div>');
 

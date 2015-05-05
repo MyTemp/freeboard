@@ -110,7 +110,7 @@ PointerGauge = function (placeholderName, configuration) {
     that.isRendered = isRendered();
 
     function render(newValue) {
-        svg = d3.select(placeholderName)
+        svg = d3.select('#' + placeholderName)
             .append('svg:svg')
             .attr('class', 'gauge')
             .attr('width', config.clipWidth)
