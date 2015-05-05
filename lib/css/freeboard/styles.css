@@ -2372,3 +2372,13 @@ input:-moz-placeholder, textarea:-moz-placeholder {
 	height: 100% !important;
 }
 
+.infobar {
+	font-size: 14px;
+	line-height: 16px;
+	text-align: center;
+}
+
+.infobar .value {
+	font-weight: 600;
+}
+

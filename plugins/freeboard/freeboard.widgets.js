@@ -798,6 +798,8 @@
         var thisPointerID = "pointer-" + pointerID++;
         var titleElement = $('<h2 class="section-title"></h2>');
         var pointerElement = $('<div class="pointer-widget" id="' + thisPointerID + '"></div>');
+        var infoBarElement = $('<div class="infobar"></div>');
+        var thisInfoBar =  ".infobar #infobar-value";
 
         var pointerObject;
         var rendered = false;
@@ -810,6 +812,14 @@
             }
 
             pointerElement.empty();
+            infoBarElement.empty();
+
+            var units_label = (_.isUndefined(currentSettings.units_label) ? 'Power' : currentSettings.units_label);
+            var units = (_.isUndefined(currentSettings.units) ? 'kW' : currentSettings.units);
+
+            var infoBarNameElement = $('<span id="infobar-name"> ' + units_label + '</span>');
+            var infoBarValueElement = $('<span class="value" id="infobar-value">0.00</span>');
+            var infoBarUnitsElement = $('<span id="infobar-units"> ' + units + '</span>');
 
             var config =
             {
@@ -824,17 +834,24 @@
 
             pointerObject = new PointerGauge(thisPointerID, config);
             pointerObject.render();
+
+            $(pointerElement).append(infoBarElement);
+            $(infoBarElement).append(infoBarNameElement, ": ", infoBarValueElement, infoBarUnitsElement);
         }
 
         this.render = function (element) {
             rendered = true;
+
             $(element).append(titleElement).append($('<div class="pointer-widget-wrapper"></div>').append(pointerElement));
             createGauge(settings);
         }
 
         this.onSettingsChanged = function (newSettings) {
             if (newSettings.title != currentSettings.title ||
-                newSettings.round_off != currentSettings.round_off) {
+                newSettings.min_value != currentSettings.min_value ||
+                newSettings.max_value != currentSettings.max_value ||
+                newSettings.units_label != currentSettings.units_label ||
+                newSettings.units != currentSettings.units) {
                 currentSettings = newSettings;
                 createGauge(newSettings);
             }
@@ -848,6 +865,7 @@
         this.onCalculatedValueChanged = function (settingName, newValue) {
             if (!_.isUndefined(pointerObject)) {
                 pointerObject.update(Number(newValue()));
+                pointerElement.find(thisInfoBar).html(newValue());
             }
         }
 
@@ -892,11 +910,16 @@
                 default_value: 10
             },
             {
-                name: "round_off",
-                display_name: "Round off",
-                description: 'Round of the value.',
-                type: "boolean",
-                default_value: true
+                name: "units_label",
+                display_name: "Measurement Type",
+                type: "text",
+                default_value: "Power"
+            },
+            {
+                name: "units",
+                display_name: "Measurement Unit",
+                type: "text",
+                default_value: "kW"
             }
         ],
         newInstance: function (settings, newInstanceCallback) {
