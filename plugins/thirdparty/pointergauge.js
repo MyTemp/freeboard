@@ -157,9 +157,9 @@ PointerGauge = function (placeholderName, configuration) {
 
         pointer = pg.append('path')
             .attr('d', pointerLine)
-            .attr('fill', '#005ce3')
+            .attr('fill', '#ff0303')
             .attr('stroke', function () {
-                return d3.interpolateLab('#005ce3', '#73c2ff');
+                return d3.interpolateLab('#ff0303', '#d64141');
             })
             .attr('transform', 'rotate(' + minAngle + ')');
 
