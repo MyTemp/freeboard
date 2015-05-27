@@ -631,30 +631,18 @@
             }
 
             var barYValues = [];
-            var preBarYValues = [];
-            var barDatum = new Array();
             // The Y-axis values
-            for (var key in graphValues[0]) {
+            graphValues.forEach(function(valueGraphSet) {
                 var barYValue = [];
-                if (graphValues[0].hasOwnProperty(key)) {
-                    for (var key_1 in graphValues[0][key]) {
-                        if (graphValues[0][key].hasOwnProperty(key_1)) {
-                            barYValue.push(graphValues[0][key][key_1]);
-
-                            var properValue;
-                            if (graphValues[0][key][key_1] === null) {
-                                properValue = 0;
-                            } else {
-                                properValue = graphValues[0][key][key_1];
-                            }
-
-                            barDatum.push(properValue);
+                for (var key in valueGraphSet) {
+                    for (var key_1 in valueGraphSet[key]) {
+                        if (valueGraphSet[key].hasOwnProperty(key_1)) {
+                            barYValue.push(valueGraphSet[key][key_1]);
                         }
                     }
-                    preBarYValues.push(barYValue);
                 }
-            }
-            barYValues.push(preBarYValues);
+                barYValues.push(barYValue);
+            });
 
             var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -668,7 +656,7 @@
                 barSvg.append("g")
                     .attr("transform", "translate(" + (margin.left + (barWidth * index)) + ",5)")
                     .selectAll("rect")
-                    .data(barDatum)
+                    .data(yValues)
                     .enter()
                     .append("rect")
                     .attr("x", function (d, i) {
