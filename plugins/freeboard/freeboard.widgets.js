@@ -723,7 +723,7 @@
                 .text(currentSettings.y_label);
 
             var legend = barSvg.append("g")
-                .attr("transform", "translate(" + (1.2 * svgWidth) + " ,0)")
+                .attr("transform", "translate(" + (1.4 * svgWidth) + " ,0)")
                 .attr("class", "legend");
 
             legend.selectAll("circle")
@@ -743,7 +743,7 @@
                 .data(legendLabels)
                 .enter()
                 .append("text")
-                .attr("x", 15 + 0.02 * svgWidth)
+                .attr("x", 10 + 0.02 * svgWidth)
                 .attr("y", function (d, i) {
                     return (i + 1) * (0.15 * svgHeight);
                 })
