@@ -770,8 +770,6 @@ body {
 	height: 100%;
 	overflow-x: hidden;
 	overflow-y: auto;
-        /* Don't allow webkit scrollbars to shrink the width of #board-content */
-	overflow-y: overlay;
 }
 
 .modal {
@@ -1403,7 +1401,7 @@ ul, ol {
 	*margin-right: .3em;
 	line-height: 14px;
 	vertical-align: text-top;
-	background-image: url("../img/glyphicons-halflings.png");
+	background-image: url("../../../img/glyphicons-halflings.png");
 	background-position: 14px 14px;
 	background-repeat: no-repeat;
 }
@@ -1427,7 +1425,7 @@ ul, ol {
 .dropdown-submenu:focus > a > [class^="icon-"],
 .dropdown-submenu:hover > a > [class*=" icon-"],
 .dropdown-submenu:focus > a > [class*=" icon-"] {
-	background-image: url("../img/glyphicons-halflings-white.png");
+	background-image: url("../../../img/glyphicons-halflings-white.png");
 }
 
 .icon-glass {
@@ -2237,7 +2235,7 @@ ul.datasource-input-suffix {
 	height: 30px;
 	-webkit-appearance: none;
 	border: none;
-	background: url(../img/dropdown-arrow.png) no-repeat right #ffffff;
+	background: url(../../../img/dropdown-arrow.png) no-repeat right #ffffff;
 }
 
 .title {
@@ -2577,7 +2575,7 @@ input:-moz-placeholder, textarea:-moz-placeholder {
 }
 
 ::-webkit-scrollbar-thumb {
-	background: rgba(0, 0, 0, 0.2);
+	background: rgba(255, 255, 255, 0.05);
 	-webkit-border-radius: 1ex;
 }
 
