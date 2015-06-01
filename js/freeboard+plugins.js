@@ -2111,55 +2111,67 @@ function WidgetModel(theFreeboardModel, widgetPlugins) {
 		}
 
 		// Check for any calculated settings
-		var settingsDefs = widgetPlugins[self.type()].settings;
+		var allSettingsDefs = widgetPlugins[self.type()].settings;
 		var datasourceRegex = new RegExp("datasources.([\\w_-]+)|datasources\\[['\"]([^'\"]+)", "g");
-		var currentSettings = self.settings();
+		var allCurrentSettings = self.settings();
 
-		_.each(settingsDefs, function (settingDef) {
-			if (settingDef.type == "calculated") {
-				var script = currentSettings[settingDef.name];
+		function processSettingDefs(settingsDefs, currentSettings, namePrefix) {
+			console.log("processSettingDefs", settingsDefs, currentSettings, namePrefix);
+			_.each(settingsDefs, function (settingDef) {
+				var name = namePrefix + settingDef.name;
+				if (settingDef.type == "calculated") {
+					var script = currentSettings[settingDef.name];
 
-				if (!_.isUndefined(script)) {
-					// If there is no return, add one
-					if ((script.match(/;/g) || []).length <= 1 && script.indexOf("return") == -1) {
-						script = "return " + script;
-					}
-
-					var valueFunction;
-
-					try {
-						valueFunction = new Function("datasources", script);
-					}
-					catch (e) {
-						var literalText = currentSettings[settingDef.name].replace(/"/g, '\\"').replace(/[\r\n]/g, ' \\\n');
-
-						// If the value function cannot be created, then go ahead and treat it as literal text
-						valueFunction = new Function("datasources", "return \"" + literalText + "\";");
-					}
-
-					self.calculatedSettingScripts[settingDef.name] = valueFunction;
-					self.processCalculatedSetting(settingDef.name);
-
-					// Are there any datasources we need to be subscribed to?
-					var matches;
-
-					while (matches = datasourceRegex.exec(script)) {
-						var dsName = (matches[1] || matches[2]);
-						var refreshSettingNames = self.datasourceRefreshNotifications[dsName];
-
-						if (_.isUndefined(refreshSettingNames)) {
-							refreshSettingNames = [];
-							self.datasourceRefreshNotifications[dsName] = refreshSettingNames;
+					if (!_.isUndefined(script)) {
+						// If there is no return, add one
+						if ((script.match(/;/g) || []).length <= 1 && script.indexOf("return") == -1) {
+							script = "return " + script;
 						}
 
-						if(_.indexOf(refreshSettingNames, settingDef.name) == -1) // Only subscribe to this notification once.
-						{
-							refreshSettingNames.push(settingDef.name);
+						var valueFunction;
+
+						try {
+							valueFunction = new Function("datasources", script);
+						}
+						catch (e) {
+							var literalText = currentSettings[settingDef.name].replace(/"/g, '\\"').replace(/[\r\n]/g, ' \\\n');
+
+							// If the value function cannot be created, then go ahead and treat it as literal text
+							valueFunction = new Function("datasources", "return \"" + literalText + "\";");
+						}
+
+						self.calculatedSettingScripts[name] = valueFunction;
+						self.processCalculatedSetting(name);
+
+						// Are there any datasources we need to be subscribed to?
+						var matches;
+
+						while (matches = datasourceRegex.exec(script)) {
+							var dsName = (matches[1] || matches[2]);
+							var refreshSettingNames = self.datasourceRefreshNotifications[dsName];
+
+							if (_.isUndefined(refreshSettingNames)) {
+								refreshSettingNames = [];
+								self.datasourceRefreshNotifications[dsName] = refreshSettingNames;
+							}
+
+							if(_.indexOf(refreshSettingNames, name) == -1) // Only subscribe to this notification once.
+							{
+								refreshSettingNames.push(name);
+							}
 						}
 					}
 				}
-			}
-		});
+				else if (settingDef.type == "array") {
+					console.log("array");
+					for (var i = 0, n = currentSettings[settingDef.name].length; i < n; i++) {
+						console.log(i);
+						processSettingDefs(settingDef.settings, currentSettings[settingDef.name][i], name + "." + i + ".");
+					}
+				}
+			});
+		}
+		processSettingDefs(allSettingsDefs, allCurrentSettings, "");
 	}
 
 	this._heightUpdate = ko.observable();
@@ -4280,14 +4292,24 @@ $.extend(freeboard, jQuery.eventEmitter);
         var self = this;
         var currentSettings = settings;
         var map;
-        var marker;
-        var currentPosition = {};
+        var markers = [];
+        var currentPositions = [];
 
-        function updatePosition() {
-            if (map && marker && currentPosition.lat && currentPosition.lon) {
-                var newLatLon = new google.maps.LatLng(currentPosition.lat, currentPosition.lon);
-                marker.setPosition(newLatLon);
-                map.panTo(newLatLon);
+        function updatePositions() {
+            if (map) {
+                var bounds = new google.maps.LatLngBounds();
+                for (var i = 0, n = currentPositions.length; i < n; i++) {
+                    if (!_.isUndefined(currentPositions[i])) {
+                        if (_.isUndefined(markers[i])) {
+                            markers[i] = new google.maps.Marker({map: map});
+                        }
+                        var currentPosition = currentPositions[i];
+                        var newLatLon = new google.maps.LatLng(currentPosition.lat, currentPosition.lon);
+                        markers[i].setPosition(newLatLon);
+                        bounds.extend(newLatLon);
+                    }
+                }
+                map.fitBounds(bounds);
             }
         }
 
@@ -4297,66 +4319,12 @@ $.extend(freeboard, jQuery.eventEmitter);
                     zoom: 13,
                     center: new google.maps.LatLng(37.235, -115.811111),
                     disableDefaultUI: true,
-                    draggable: false,
-                    styles: [
-                        {"featureType": "water", "elementType": "geometry", "stylers": [
-                            {"color": "#2a2a2a"}
-                        ]},
-                        {"featureType": "landscape", "elementType": "geometry", "stylers": [
-                            {"color": "#000000"},
-                            {"lightness": 20}
-                        ]},
-                        {"featureType": "road.highway", "elementType": "geometry.fill", "stylers": [
-                            {"color": "#000000"},
-                            {"lightness": 17}
-                        ]},
-                        {"featureType": "road.highway", "elementType": "geometry.stroke", "stylers": [
-                            {"color": "#000000"},
-                            {"lightness": 29},
-                            {"weight": 0.2}
-                        ]},
-                        {"featureType": "road.arterial", "elementType": "geometry", "stylers": [
-                            {"color": "#000000"},
-                            {"lightness": 18}
-                        ]},
-                        {"featureType": "road.local", "elementType": "geometry", "stylers": [
-                            {"color": "#000000"},
-                            {"lightness": 16}
-                        ]},
-                        {"featureType": "poi", "elementType": "geometry", "stylers": [
-                            {"color": "#000000"},
-                            {"lightness": 21}
-                        ]},
-                        {"elementType": "labels.text.stroke", "stylers": [
-                            {"visibility": "on"},
-                            {"color": "#000000"},
-                            {"lightness": 16}
-                        ]},
-                        {"elementType": "labels.text.fill", "stylers": [
-                            {"saturation": 36},
-                            {"color": "#000000"},
-                            {"lightness": 40}
-                        ]},
-                        {"elementType": "labels.icon", "stylers": [
-                            {"visibility": "off"}
-                        ]},
-                        {"featureType": "transit", "elementType": "geometry", "stylers": [
-                            {"color": "#000000"},
-                            {"lightness": 19}
-                        ]},
-                        {"featureType": "administrative", "elementType": "geometry.fill", "stylers": [
-                            {"color": "#000000"},
-                            {"lightness": 20}
-                        ]},
-                        {"featureType": "administrative", "elementType": "geometry.stroke", "stylers": [
-                            {"color": "#000000"},
-                            {"lightness": 17},
-                            {"weight": 1.2}
-                        ]}
-                    ]
+                    draggable: true
                 };
 
-                map = new google.maps.Map(element, mapOptions);
+                var container = $('<div style="position: relative; height: 100%"><div style="position:absolute; top: 8px; bottom: 0; width: 100%"></div></div>');
+                $(element).append(container);
+                map = new google.maps.Map(container[0].firstChild, mapOptions);
 
                 google.maps.event.addDomListener(element, 'mouseenter', function (e) {
                     e.cancelBubble = true;
@@ -4373,9 +4341,7 @@ $.extend(freeboard, jQuery.eventEmitter);
                     }
                 });
 
-                marker = new google.maps.Marker({map: map});
-
-                updatePosition();
+                updatePositions();
             }
 
             if (window.google && window.google.maps) {
@@ -4388,25 +4354,30 @@ $.extend(freeboard, jQuery.eventEmitter);
         }
 
         this.onSettingsChanged = function (newSettings) {
+            console.log("onSettingsChanged", newSettings);
             currentSettings = newSettings;
         }
 
         this.onCalculatedValueChanged = function (settingName, newValue) {
-            if (settingName == "lat") {
-                currentPosition.lat = newValue;
-            }
-            else if (settingName == "lon") {
-                currentPosition.lon = newValue;
+            console.log("onCalculatedValueChanged", settingName, newValue);
+            var parts = settingName.split(".");
+            if (parts[0] === "locations") {
+                var index = parseInt(parts[1], 10);
+                if (_.isUndefined(currentPositions[index])) {
+                    currentPositions[index] = {};
+                }
+                currentPositions[index][parts[2]] = newValue;
+                console.log("currentPositions", currentPositions);
             }
 
-            updatePosition();
+            updatePositions();
         }
 
         this.onDispose = function () {
         }
 
         this.getHeight = function () {
-            return 4;
+            return parseInt(currentSettings.height, 10) || 4;
         }
 
         this.onSettingsChanged(settings);
@@ -4426,6 +4397,30 @@ $.extend(freeboard, jQuery.eventEmitter);
                 name: "lon",
                 display_name: "Longitude",
                 type: "calculated"
+            },
+            {
+                name: "locations",
+                display_name: "Locations",
+                type: "array",
+                settings: [
+                    {
+                        name: "lat",
+                        display_name: "Latitude",
+                        type: "calculated"
+                    },
+                    {
+                        name: "lon",
+                        display_name: "Longitude",
+                        type: "calculated"
+                    }
+                ]
+            },
+            {
+                "name": "height",
+                "display_name": "Height Blocks",
+                "type": "number",
+                "default_value": 4,
+                "description": "A height block is around 60 pixels"
             }
         ],
         newInstance: function (settings, newInstanceCallback) {

@@ -1436,14 +1436,24 @@
         var self = this;
         var currentSettings = settings;
         var map;
-        var marker;
-        var currentPosition = {};
+        var markers = [];
+        var currentPositions = [];
 
-        function updatePosition() {
-            if (map && marker && currentPosition.lat && currentPosition.lon) {
-                var newLatLon = new google.maps.LatLng(currentPosition.lat, currentPosition.lon);
-                marker.setPosition(newLatLon);
-                map.panTo(newLatLon);
+        function updatePositions() {
+            if (map) {
+                var bounds = new google.maps.LatLngBounds();
+                for (var i = 0, n = currentPositions.length; i < n; i++) {
+                    if (!_.isUndefined(currentPositions[i])) {
+                        if (_.isUndefined(markers[i])) {
+                            markers[i] = new google.maps.Marker({map: map});
+                        }
+                        var currentPosition = currentPositions[i];
+                        var newLatLon = new google.maps.LatLng(currentPosition.lat, currentPosition.lon);
+                        markers[i].setPosition(newLatLon);
+                        bounds.extend(newLatLon);
+                    }
+                }
+                map.fitBounds(bounds);
             }
         }
 
@@ -1453,66 +1463,12 @@
                     zoom: 13,
                     center: new google.maps.LatLng(37.235, -115.811111),
                     disableDefaultUI: true,
-                    draggable: false,
-                    styles: [
-                        {"featureType": "water", "elementType": "geometry", "stylers": [
-                            {"color": "#2a2a2a"}
-                        ]},
-                        {"featureType": "landscape", "elementType": "geometry", "stylers": [
-                            {"color": "#000000"},
-                            {"lightness": 20}
-                        ]},
-                        {"featureType": "road.highway", "elementType": "geometry.fill", "stylers": [
-                            {"color": "#000000"},
-                            {"lightness": 17}
-                        ]},
-                        {"featureType": "road.highway", "elementType": "geometry.stroke", "stylers": [
-                            {"color": "#000000"},
-                            {"lightness": 29},
-                            {"weight": 0.2}
-                        ]},
-                        {"featureType": "road.arterial", "elementType": "geometry", "stylers": [
-                            {"color": "#000000"},
-                            {"lightness": 18}
-                        ]},
-                        {"featureType": "road.local", "elementType": "geometry", "stylers": [
-                            {"color": "#000000"},
-                            {"lightness": 16}
-                        ]},
-                        {"featureType": "poi", "elementType": "geometry", "stylers": [
-                            {"color": "#000000"},
-                            {"lightness": 21}
-                        ]},
-                        {"elementType": "labels.text.stroke", "stylers": [
-                            {"visibility": "on"},
-                            {"color": "#000000"},
-                            {"lightness": 16}
-                        ]},
-                        {"elementType": "labels.text.fill", "stylers": [
-                            {"saturation": 36},
-                            {"color": "#000000"},
-                            {"lightness": 40}
-                        ]},
-                        {"elementType": "labels.icon", "stylers": [
-                            {"visibility": "off"}
-                        ]},
-                        {"featureType": "transit", "elementType": "geometry", "stylers": [
-                            {"color": "#000000"},
-                            {"lightness": 19}
-                        ]},
-                        {"featureType": "administrative", "elementType": "geometry.fill", "stylers": [
-                            {"color": "#000000"},
-                            {"lightness": 20}
-                        ]},
-                        {"featureType": "administrative", "elementType": "geometry.stroke", "stylers": [
-                            {"color": "#000000"},
-                            {"lightness": 17},
-                            {"weight": 1.2}
-                        ]}
-                    ]
+                    draggable: true
                 };
 
-                map = new google.maps.Map(element, mapOptions);
+                var container = $('<div style="position: relative; height: 100%"><div style="position:absolute; top: 8px; bottom: 0; width: 100%"></div></div>');
+                $(element).append(container);
+                map = new google.maps.Map(container[0].firstChild, mapOptions);
 
                 google.maps.event.addDomListener(element, 'mouseenter', function (e) {
                     e.cancelBubble = true;
@@ -1529,9 +1485,7 @@
                     }
                 });
 
-                marker = new google.maps.Marker({map: map});
-
-                updatePosition();
+                updatePositions();
             }
 
             if (window.google && window.google.maps) {
@@ -1544,25 +1498,30 @@
         }
 
         this.onSettingsChanged = function (newSettings) {
+            console.log("onSettingsChanged", newSettings);
             currentSettings = newSettings;
         }
 
         this.onCalculatedValueChanged = function (settingName, newValue) {
-            if (settingName == "lat") {
-                currentPosition.lat = newValue;
-            }
-            else if (settingName == "lon") {
-                currentPosition.lon = newValue;
+            console.log("onCalculatedValueChanged", settingName, newValue);
+            var parts = settingName.split(".");
+            if (parts[0] === "locations") {
+                var index = parseInt(parts[1], 10);
+                if (_.isUndefined(currentPositions[index])) {
+                    currentPositions[index] = {};
+                }
+                currentPositions[index][parts[2]] = newValue;
+                console.log("currentPositions", currentPositions);
             }
 
-            updatePosition();
+            updatePositions();
         }
 
         this.onDispose = function () {
         }
 
         this.getHeight = function () {
-            return 4;
+            return parseInt(currentSettings.height, 10) || 4;
         }
 
         this.onSettingsChanged(settings);
@@ -1582,6 +1541,30 @@
                 name: "lon",
                 display_name: "Longitude",
                 type: "calculated"
+            },
+            {
+                name: "locations",
+                display_name: "Locations",
+                type: "array",
+                settings: [
+                    {
+                        name: "lat",
+                        display_name: "Latitude",
+                        type: "calculated"
+                    },
+                    {
+                        name: "lon",
+                        display_name: "Longitude",
+                        type: "calculated"
+                    }
+                ]
+            },
+            {
+                "name": "height",
+                "display_name": "Height Blocks",
+                "type": "number",
+                "default_value": 4,
+                "description": "A height block is around 60 pixels"
             }
         ],
         newInstance: function (settings, newInstanceCallback) {
