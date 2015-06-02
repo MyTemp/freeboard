@@ -948,7 +948,8 @@
                 for (var i = 0, n = currentPositions.length; i < n; i++) {
                     if (!_.isUndefined(currentPositions[i])) {
                         if (_.isUndefined(markers[i])) {
-                            markers[i] = new google.maps.Marker({map: map});
+                            markers[i] = new google.maps.Marker({map: map,
+                                                                 icon: currentSettings.locations[i].icon});
                         }
                         var currentPosition = currentPositions[i];
                         var newLatLon = new google.maps.LatLng(currentPosition.lat, currentPosition.lon);
@@ -1059,6 +1060,11 @@
                         name: "lon",
                         display_name: "Longitude",
                         type: "calculated"
+                    },
+                    {
+                        name: "icon",
+                        display_name: "Icon URL",
+                        type: "string"
                     }
                 ]
             },
