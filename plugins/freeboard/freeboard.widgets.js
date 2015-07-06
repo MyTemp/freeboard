@@ -635,11 +635,7 @@
             graphValues.forEach(function(valueGraphSet) {
                 var barYValue = [];
                 for (var key in valueGraphSet) {
-                    for (var key_1 in valueGraphSet[key]) {
-                        if (valueGraphSet[key].hasOwnProperty(key_1)) {
-                            barYValue.push(valueGraphSet[key][key_1]);
-                        }
-                    }
+                    barYValue.push(valueGraphSet[key]["lastvalue"]);
                 }
                 barYValues.push(barYValue);
             });
