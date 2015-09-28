@@ -346,6 +346,150 @@ div.CodeMirror-cursors {
   }
 }
 
+svg a:hover,
+svg a:focus {
+    text-decoration: none;
+}
+.graph {
+  background-color: #eeeeee;
+}
+.graph header {
+  border-bottom: 1px solid #cccccc;
+}
+.right {
+  float: right;
+}
+#content {
+  background-color: #9cd4ff;
+}
+#graph {
+  background-color: #ffffff;
+  padding-top: 0.2em;
+}
+h1 {
+  font-size: 1.2em;
+  font-weight: normal;
+  text-align: center;
+  margin: 0 0 -0.5em;
+}
+@media (max-width: 25em) {
+  .thermometer-name {
+    font-size: 0.8em;
+  }
+}
+@media (min-width: 25em) {
+  .thermometer-name {
+    font-size: 1em;
+  }
+}
+@media (min-width: 30em) {
+  .thermometer-name {
+    font-size: 1.2em;
+  }
+}
+.thermometer-temperature {
+  fill: #0047b0;
+  font-size: 1.5em;
+}
+.thermometer-max-temperature {
+  font-size: 0.9em;
+}
+.thermometer-background-odd {
+  fill: #9cd4ff;
+}
+.thermometer-background-even {
+  fill: #cfeaff;
+}
+.thermometer-contour {
+  fill: none;
+  stroke-width: 2px;
+}
+.thermometer-contour-dark {
+  stop-color: #a6d8ff;
+}
+.thermometer-contour-light {
+  stop-color: #ffffff;
+}
+.thermometer-fluid {
+  fill: #005ce3;
+}
+@media (resolution: 1dppx), (resolution: 2dppx) {
+  rect.thermometer-fluid {
+    shape-rendering: crispEdges;
+  }
+}
+.thermometer-highlight-edge {
+  stop-color: #ffffff;
+  stop-opacity: 0;
+}
+.thermometer-highlight-center {
+  stop-color: #ffffff;
+  stop-opacity: 0.45;
+}
+.thermometer-marker {
+  fill: none;
+  stroke: #3087ef;
+  stroke-width: 1px;
+}
+@media (resolution: 1dppx), (resolution: 2dppx) {
+  .thermometer-marker {
+    shape-rendering: crispEdges;
+  }
+}
+.thermometer-max-marker {
+  fill: none;
+  stroke: #000000;
+  stroke-width: 1px;
+}
+@media (resolution: 1dppx), (resolution: 2dppx) {
+  .thermometer-max-marker {
+    shape-rendering: crispEdges;
+  }
+}
+.thermometer .domain {
+  display: none;
+}
+.thermometer .tick > line {
+  stroke: #3087ef;
+  stroke-width: 1px;
+}
+@media (resolution: 1dppx), (resolution: 2dppx) {
+  .thermometer .tick > line {
+    shape-rendering: crispEdges;
+  }
+}
+.thermometer .tick text {
+  font-size: 8px;
+  fill: #3087ef;
+}
+.graph-line {
+  fill: none;
+  stroke-width: 1.8px;
+  stroke: #005ce3;
+}
+.graph-older {
+  stroke: #eaf0f8;
+}
+.graph-background {
+  fill: #ffffff;
+}
+@media (resolution: 1dppx), (resolution: 2dppx) {
+  .graph-background {
+    shape-rendering: crispEdges;
+  }
+}
+.graph-axis .domain {
+  display: none;
+}
+.graph-axis .tick > line {
+  fill: none;
+  stroke: #73c2ff;
+}
+@media (resolution: 1dppx), (resolution: 2dppx) {
+  .graph-axis .tick > line {
+    shape-rendering: crispEdges;
+  }
+}
 /*! gridster.js - v0.1.0 - 2013-06-14 - * http://gridster.net/ - Copyright (c) 2013 ducksboard; Licensed MIT */
 .gridster{position:relative}.gridster>*{margin:0 auto;-webkit-transition:height .4s;-moz-transition:height .4s;-o-transition:height .4s;-ms-transition:height .4s;transition:height .4s}.gridster .gs_w{z-index:2;position:absolute}.ready .gs_w:not(.preview-holder){-webkit-transition:opacity .3s,left .3s,top .3s;-moz-transition:opacity .3s,left .3s,top .3s;-o-transition:opacity .3s,left .3s,top .3s;transition:opacity .3s,left .3s,top .3s}.ready .gs_w:not(.preview-holder){-webkit-transition:opacity .3s,left .3s,top .3s,width .3s,height .3s;-moz-transition:opacity .3s,left .3s,top .3s,width .3s,height .3s;-o-transition:opacity .3s,left .3s,top .3s,width .3s,height .3s;transition:opacity .3s,left .3s,top .3s,width .3s,height .3s}.gridster .preview-holder{z-index:1;position:absolute;background-color:#fff;border-color:#fff;opacity:.3}.gridster .player-revert{z-index:10!important;-webkit-transition:left .3s,top .3s!important;-moz-transition:left .3s,top .3s!important;-o-transition:left .3s,top .3s!important;transition:left .3s,top .3s!important}.gridster .dragging{z-index:10!important;-webkit-transition:all 0s!important;-moz-transition:all 0s!important;-o-transition:all 0s!important;transition:all 0s!important}
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
