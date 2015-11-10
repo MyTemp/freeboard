@@ -546,7 +546,7 @@
         type_name: "pointer",
         display_name: "Pointer",
         "external_scripts" : [
-            "plugins/thirdparty/raphael.2.1.0.min.js"
+            "freeboard/plugins/thirdparty/raphael.2.1.0.min.js"
         ],
         settings: [
             {
