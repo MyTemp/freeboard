@@ -1262,8 +1262,8 @@
 
         this.onCalculatedValueChanged = function (settingName, newValue) {
             if (!_.isUndefined(pointerObject)) {
-                pointerObject.update(Number(newValue()));
-                pointerElement.find(thisInfoBar).html(newValue());
+                pointerObject.update(Number(newValue));
+                pointerElement.find(thisInfoBar).html(newValue);
             }
         }
 
