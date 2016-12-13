@@ -770,6 +770,9 @@ body {
 	height: 100%;
 	overflow-x: hidden;
 	overflow-y: auto;
+        /* Don't allow webkit scrollbars to shrink the width of #board-content */
+        overflow-y: overlay;
+
 }
 
 .modal {
@@ -2578,7 +2581,7 @@ input:-moz-placeholder, textarea:-moz-placeholder {
 }
 
 ::-webkit-scrollbar-thumb {
-	background: rgba(255, 255, 255, 0.05);
+	background: rgba(0, 0, 0, 0.2);
 	-webkit-border-radius: 1ex;
 }
 
