@@ -762,14 +762,17 @@ html {
 }
 
 body {
-	background-color: #e6e7e8;
-	color: #6bbbfd;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	background-color: #f0f0f0;
+	color: #333;
+	font-family: "Open Sans", Helvetica, Arial, sans-serif;
 	font-size: 14px;
 	line-height: 20px;
 	height: 100%;
 	overflow-x: hidden;
 	overflow-y: auto;
+        /* Don't allow webkit scrollbars to shrink the width of #board-content */
+        overflow-y: overlay;
+
 }
 
 .modal {
@@ -1117,13 +1120,13 @@ a:focus {
 }
 
 header h1 {
-	font-size: 12px;
+	font-size: 24px;
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	padding: 0;
 	margin: 0;
-	line-height: 30px;
+	line-height: 40px;
 }
 
 .gridster section {
@@ -1269,7 +1272,7 @@ header h1 {
 
 .sub-section {
 	padding: 0;
-	border-bottom: solid 1px #363636;
+	border-bottom: solid 1px #eee;
 	position: relative;
 	overflow: hidden;
 }
@@ -2578,7 +2581,7 @@ input:-moz-placeholder, textarea:-moz-placeholder {
 }
 
 ::-webkit-scrollbar-thumb {
-	background: rgba(255, 255, 255, 0.05);
+	background: rgba(0, 0, 0, 0.2);
 	-webkit-border-radius: 1ex;
 }
 
